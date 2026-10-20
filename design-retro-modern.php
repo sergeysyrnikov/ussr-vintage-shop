@@ -199,6 +199,11 @@ $css = '
   --retro-brown: #4A3728;
 }
 body { background: var(--retro-cream); }
+.has-burgundy-color { color: #7B2D26 !important; }
+.has-burgundy-background-color { background-color: #7B2D26 !important; }
+.has-cream-color { color: #F7F1E3 !important; }
+.has-mustard-background-color { background-color: #E8B84B !important; }
+.wp-block-cover .wp-block-cover__background { opacity: 1 !important; }
 h1, h2, h3, h4 { font-family: Georgia, "Times New Roman", serif; }
 .wp-site-blocks { max-width: 1200px; margin: 0 auto; }
 a { color: var(--retro-burgundy); }
@@ -270,6 +275,24 @@ $locations['primary'] = $menu_id;
 $locations['footer']  = $menu_id;
 set_theme_mod( 'nav_menu_locations', $locations );
 $log[] = 'menu rebuilt: ' . count( $items ) . ' items';
+
+// Block themes use wp_navigation posts — create the real menu for the header.
+$nav_html = '<!-- wp:navigation {"overlayMenu":"mobile","layout":{"type":"flex","justifyContent":"left"}} -->';
+foreach ( $items as $item ) {
+	$nav_html .= '<!-- wp:navigation-link {"label":"' . $item['title'] . '","url":"' . $item['url'] . '"} /-->';
+}
+$nav_html .= '<!-- /wp:navigation -->';
+foreach ( get_posts( array( 'post_type' => 'wp_navigation', 'numberposts' => -1, 'post_status' => 'any' ) ) as $old_nav ) {
+	wp_delete_post( $old_nav->ID, true );
+}
+$nav_id = wp_insert_post( array(
+	'post_type'    => 'wp_navigation',
+	'post_title'   => 'Основное меню',
+	'post_name'    => 'primary-navigation',
+	'post_content' => $nav_html,
+	'post_status'  => 'publish',
+) );
+$log[] = 'block navigation created: ' . $nav_id;
 
 // --- 7. Retro-styled placeholder images (redrawn) ---
 if ( extension_loaded( 'gd' ) ) {
