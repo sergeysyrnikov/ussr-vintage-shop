@@ -1,6 +1,11 @@
 <?php
 // Adapt Astra theme to retro-modern palette (burgundy / mustard / cream).
-require 'C:/Users/Serhio/Studio/ussr-vintage-shop/wp-load.php';
+foreach ( array( '/wordpress/wp-load.php', 'C:/Users/Serhio/Studio/ussr-vintage-shop/wp-load.php' ) as $c ) {
+	if ( file_exists( $c ) ) {
+		require_once $c;
+		break;
+	}
+}
 $log = '';
 
 $defaults = get_option( 'astra-settings', array() );

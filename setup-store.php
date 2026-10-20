@@ -4,7 +4,14 @@
  * Creates: store settings, 12 categories, 12 demo products, static pages,
  * shipping zone (Russia) and demo payment methods.
  */
-require_once '/wordpress/wp-load.php';
+// Retro USSR Store — WooCommerce setup for WordPress Playground / local.
+// Creates: store settings, 12 categories, 12 demo products, pages, shipping, payments.
+foreach ( array( '/wordpress/wp-load.php', 'C:/Users/Serhio/Studio/ussr-vintage-shop/wp-load.php' ) as $c ) {
+	if ( file_exists( $c ) ) {
+		require_once $c;
+		break;
+	}
+}
 
 // 1. Store settings: currency, locale, catalog.
 update_option( 'blogname', 'Ретро СССР' );

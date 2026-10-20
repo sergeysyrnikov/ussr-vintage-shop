@@ -67,8 +67,12 @@ function retro_import_lang( $type, $slug = '' ) {
 $log[] = 'lang core: ' . retro_import_lang( 'core' );
 $log[] = 'lang woo: ' . retro_import_lang( 'plugins', 'woocommerce' );
 
-// --- 2. Theme: Twenty Twenty-Five ---
-switch_theme( 'twentytwentyfive' );
+// --- 2. Theme: Astra (keep if active, otherwise fall back to Twenty Twenty-Five) ---
+$active = wp_get_theme()->get( 'Template' );
+if ( 'astra' !== $active ) {
+	$theme_dir = get_theme_root() . '/astra';
+	switch_theme( is_dir( $theme_dir ) ? 'astra' : 'twentytwentyfive' );
+}
 
 // --- 3. Pages: Russian titles, cleanup ---
 function retro_page_title( $slug, $title ) {

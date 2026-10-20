@@ -3,7 +3,12 @@
  * Fetch real product photos from Wikimedia Commons, process (square crop,
  * warm retro tone) and attach to WooCommerce products by title match.
  */
-require 'C:/Users/Serhio/Studio/ussr-vintage-shop/wp-load.php';
+foreach ( array( '/wordpress/wp-load.php', 'C:/Users/Serhio/Studio/ussr-vintage-shop/wp-load.php' ) as $c ) {
+	if ( file_exists( $c ) ) {
+		require_once $c;
+		break;
+	}
+}
 require_once ABSPATH . 'wp-admin/includes/image.php';
 require_once ABSPATH . 'wp-admin/includes/file.php';
 $log = '';
