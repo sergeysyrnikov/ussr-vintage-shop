@@ -1,7 +1,7 @@
 {
     "$schema": "https://playground.wordpress.net/blueprint-schema.json",
     "meta": {
-        "title": "Ретро СССР — интернет-магазин винтажа",
+        "title": "Retro USSR Vintage Store",
         "description": "Демо-магазин винтажных вещей из СССР: WooCommerce, 12 разделов, 12 товаров, доставка и демо-оплата.",
         "author": "Sergey",
         "categories": [
@@ -10,7 +10,7 @@
             "portfolio"
         ]
     },
-    "landingPage": "/shop/",
+    "landingPage": "/",
     "preferredVersions": {
         "php": "8.3",
         "wp": "latest"
