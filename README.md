@@ -5,19 +5,14 @@
 
 ## 🚀 Быстрый запуск
 
-Откройте ссылку (после публикации blueprint):
+**Способ 1 (проще всего):** откройте `playground-store.html` → нажмите красную кнопку
+«Запустить магазин в Playground» — магазин соберётся автоматически.
 
-```
-https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/<user>/ussr-vintage-shop/main/blueprint.json
-```
+**Способ 2:** откройте [playground.wordpress.net](https://playground.wordpress.net) и вставьте
+содержимое `playground-link.txt` в адресную строку (blueprint зашит прямо в хеш ссылки).
 
-Или локально через [Playground CLI](https://developer.wordpress.org/playground/developers/local-development/wp-playground-cli/):
-
-```bash
-npx @wp-playground/cli@latest start --blueprint=./blueprint.json --blueprint-may-read-adjacent-files
-```
-
-Магазин соберётся автоматически за ~1 минуту: WooCommerce → настройки → каталог → товары → страницы.
+**Способ 3:** на playground.wordpress.net в нижней панели: **New → Blueprint URL** —
+для этого blueprint нужно выложить в интернет (например, на GitHub).
 
 ## 🛍 Что входит
 
