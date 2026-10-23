@@ -428,3 +428,44 @@ what they surface:
   before checking colors) or you'll chase phantom fails.
 - Wrap detection on mobile lists intentional stacks (wrap rows at 100%
   width); only flag wraps at desktop width.
+
+## Drag carousel for a row (free Elementor has no carousel widget)
+
+Verified on the "Нас рекомендуют" row of the home page. Free Elementor ships no
+carousel/slider for containers, so the row itself becomes the scroller:
+
+1. Row container: CSS class `rv-carousel`, `flex_wrap: nowrap`, a real
+   `flex_gap` (24px desktop / 16px mobile), and DELETE any
+   `flex_direction_mobile` that stacked the row on phones.
+2. Cards: per-breakpoint `width` = the visible fraction (38% ≈ 2.5 cards on
+   desktop, 46% tablet, 85% mobile so the next card peeks). Keep the widths in
+   the DATA, not in CSS, or the editor preview stops matching the front end.
+3. Mechanics go into a sandbox plugin (`wp-content/novamira-sandbox/`:
+   `reviews-carousel.php` enqueues `reviews-carousel.css` + `.js`, both
+   versioned with `filemtime()`): `overflow-x: auto` + hidden scrollbar +
+   `scroll-snap-type: x mandatory`, mouse drag with momentum, arrows/dots
+   injected by JS, keyboard arrows, native touch scrolling left to the browser.
+
+Traps, all hit for real:
+
+- Elementor hardcodes `--flex-wrap-mobile: wrap` in the "row" container preset
+  (`elementor/includes/controls/groups/flex-container.php`) and consumes it at
+  <=767px as `flex-wrap: var(--flex-wrap-mobile)`. That generated per-element
+  rule is more specific than any selector you can write here, so override the
+  VARIABLE with `!important` - otherwise the row wraps on phones and the
+  carousel stops working.
+- `scroll-snap-type: x mandatory` cannot rest at a partial trailing page: with
+  3 cards at ~2.5 per view the max scroll (243px) is less than half a step
+  (553/2), so the browser pulls a released track back to card 1. Give the last
+  card `scroll-snap-align: end` so max scroll is a snap point too.
+- Dots must map to the positions the track can rest at
+  (`min(i*step, maxScroll)`), not to `round(scrollLeft / step)`, or the last
+  dot never lights up.
+- Guard the JS against the editor (`?elementor-preview=` in the URL or
+  `body.elementor-editor-active`): its pointer handlers would otherwise fight
+  Elementor's own drag & drop in the preview iframe.
+- Verify the drag with real input, not by calling the handlers: CDP
+  `Input.dispatchMouseEvent` for the mouse drag and `Input.dispatchTouchEvent`
+  (with `Emulation.setTouchEmulationEnabled`) for the touch swipe. Scroll the
+  target into view immediately before dispatching - lazy images above shift the
+  layout after load, and a drag aimed at a stale rect silently does nothing.
