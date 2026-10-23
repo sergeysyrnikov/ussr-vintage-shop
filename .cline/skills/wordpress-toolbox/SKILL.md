@@ -429,6 +429,57 @@ what they surface:
 - Wrap detection on mobile lists intentional stacks (wrap rows at 100%
   width); only flag wraps at desktop width.
 
+
+## Matching the other pages to the home page style (Blocksy + Elementor)
+
+Verified on a Blocksy 2.1.60 + Elementor 4.3.5 + WooCommerce site whose home page
+is Elementor-built. The order that worked:
+
+1. **Breadcrumbs**: Blocksy keeps them as an *element* inside each hero config, and
+   those configs live in the theme mods as **arrays**, not JSON strings -
+   `theme_mods_blocksy['single_page_hero_elements']`, `blog_hero_elements`,
+   `single_blog_post_hero_elements`, `woo_categories_hero_elements`. Drop the entry
+   whose `id` is `breadcrumbs`, then `update_option('theme_mods_blocksy', $mods)`.
+   Add `.ct-breadcrumbs, .woocommerce-breadcrumb { display: none }` to the custom CSS
+   for the leftovers (Woo product pages render one no mod controls).
+2. **Site background**: `site_background` is a JSON *string* - rebuild it with
+   `wp_json_encode(blocksy_background_default_value(['backgroundColor' => ['default'
+   => ['color' => '#F5F0E7']]]))`. Hand-writing a partial array silently drops the
+   background type and the site falls back to the raw default.
+3. **Heading typography**: the `h1Typography`..`h6Typography` mods are NOT emitted
+   into the dynamic CSS on this stack - the generated `global.css` holds the `:root`
+   typography and the header/footer rules but no `h1..h6` rules (check by generating
+   the CSS in PHP, not by looking at the page). So set the heading family/sizes in
+   the custom CSS, and scope them: a global `h1..h6 { font-size }` outranks the
+   theme's own hero title (50px) and the card titles (blog 20px, product 17px). Only
+   two scopes need the scale: `.elementor-widget-heading h1..h6` (Elementor headings
+   that carry no size of their own - per-element rules win wherever a size exists)
+   and `.single-post .entry-content > h1..h6`. A plain `.entry-content h1..h6` is too
+   broad: on an Elementor page the whole builder output sits inside `.entry-content`,
+   so it also hits shortcode-rendered Woo product titles.
+4. **Demo leftovers**: imported demo content hotlinks images from the vendor domain.
+   Import them with `wp_remote_get()` + `media_handle_sideload()` - note
+   `download_url()` rejects any URL whose path contains `@` ("A valid URL was not
+   provided") - keep the source URL in a meta key for idempotency, then rewrite
+   `_elementor_data` (walk the tree: every array with both `url` and `id`),
+   `post_content`, and any `widget_block` options. SVGs need `wp_insert_attachment()`
+   with `post_mime_type = 'image/svg+xml'` because the upload mime check blocks them.
+   A demo video that belongs to the theme vendor (check the oEmbed title!) is not
+   content - replace it with a real CTA button.
+5. **Empty links**: buttons in imported pages often carry `link.url = ''` or `'#'`.
+   Sweep the builder data for `widgetType === 'button'` and point them at real pages.
+6. **WooCommerce schema drift**: `woocommerce_db_version` can equal `WC_VERSION` while
+   a table is missing a column (`wp_wc_order_stats.total_sales` here), which breaks
+   the admin analytics with "Unknown column" errors.
+   `WC_Install::verify_base_tables()` reports it but does not fix it;
+   `ALTER TABLE ... ADD COLUMN total_sales double NOT NULL DEFAULT 0` does.
+
+Verify with CDP instead of trusting the CSS: computed `font-size` per selector,
+`document.fonts.check()` (headless often renders fallbacks - the real browser is
+authoritative), `[...document.images].filter(i => !i.src.includes(host))` for
+external images and `filter(i => i.complete && i.naturalWidth === 0)` for broken
+ones.
+
 ## Drag carousel for a row (free Elementor has no carousel widget)
 
 Verified on the "Нас рекомендуют" row of the home page. Free Elementor ships no
